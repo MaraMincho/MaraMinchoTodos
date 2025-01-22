@@ -4,43 +4,44 @@ import org.example.maraminchotodos.domain.Todo;
 import org.example.maraminchotodos.dto.CreateTodoRequest;
 import org.example.maraminchotodos.dto.RemoveTodoRequest;
 import org.example.maraminchotodos.dto.UpdateTodoRequest;
-import org.springframework.stereotype.Controller;
+import org.example.maraminchotodos.repository.sql.TodoTableType;
+import org.springframework.stereotype.Repository;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-@Controller
+@Repository
 public class TodoDefaultRepository {
     // DB 연결 정보 TODO 수정
     private static final String DB_URL = "jdbc:h2:mem:test";
     private static final String DB_USER = "sa";
     private static final String DB_PASSWORD = "sa";
 
+    private TodoTableType tableType = TodoTableType.NORMAL;
     // CREATE
-    public void addTodo(CreateTodoRequest dto) {
-        String sql = "INSERT INTO todos (userId, title, content) VALUES (?, ?, ?)";
+    public boolean addTodo(CreateTodoRequest dto) {
+        String sql = tableType.insertTodoSQL(dto.getUserId(), dto.getTitle(), dto.getContent());
 
-        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            // TODO: - 하드 코딩 수정
-            pstmt.setInt(1, 1);
-            pstmt.setString(2, dto.getTitle());
-            pstmt.setString(3, dto.getContent());
-            pstmt.execute();
-
+        try (
+                Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+                PreparedStatement pstmt = conn.prepareStatement(sql);
+        ) {
+            return pstmt.execute();
         } catch (SQLException e) {
             e.printStackTrace();
+            return false;
         }
     }
     // READ
-    public List<Todo> getTodoById(int userId) {
-        String sql = "SELECT * FROM todos WHERE userId = ?";
+    public List<Todo> getTodoById(Long userId) {
+        String sql = tableType.getTodoByUserIdSQL(userId);
         List<Todo> todos = new ArrayList<>();
-        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, userId);
+        try (
+            Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+             PreparedStatement pstmt = conn.prepareStatement(sql)
+        ) {
             ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
                 todos.add(convertResultSetTodo(rs));
@@ -52,24 +53,12 @@ public class TodoDefaultRepository {
     }
 
     public boolean updateTodo(UpdateTodoRequest dto) {
-        var title = dto.getTitle();
-        var content = dto.getContent();
-        var id = dto.getId();
-        String sql = """
-                    UPDATE todos 
-                    SET(title, content) = (?, ?)
-                    WHERE id == (?)
-                    """;
-
-        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, title);
-            pstmt.setString(2, content);
-            pstmt.setLong(3, id);
-
-            //TODO: - 에러 처리 로직 새성
-            pstmt.execute();
-            return true;
+        String sql = tableType.updateTodoSQL(dto.getId(), dto.getTitle(), dto.getContent());
+        try (
+                Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+                PreparedStatement pstmt = conn.prepareStatement(sql)
+        ) {
+            return pstmt.execute();
         }catch (SQLException e) {
             e.printStackTrace();
             return false;
@@ -77,10 +66,7 @@ public class TodoDefaultRepository {
     }
 
     public Optional<Todo> getTodo(Long id) {
-        String sql = """
-                SELECT * FROM todos WHERE id = ?
-                """;
-
+        String sql = tableType.getTodoByIdSQL(id);
         try(
                 Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
                 PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -97,46 +83,28 @@ public class TodoDefaultRepository {
     }
 
     public boolean removeTodo(RemoveTodoRequest dto) {
-        String sql = """
-                DELTE FROM todos
-                where id = ?
-                """;
-        String findTargetTodoSQL = "SELECT * FROM todos WHERE id = ?";
-        String insertSQL = "INSERT INTO removed_todos(userId, title, content) VALUES(?, ?, ?)";
+        String sql = tableType.deleteTodoSQL(dto.getId());
         try(
                 Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
-                PreparedStatement findPs = conn.prepareStatement(findTargetTodoSQL);
                 PreparedStatement deletePS = conn.prepareStatement(sql);
-                PreparedStatement insertPS = conn.prepareStatement(insertSQL);
-
         ) {
-            var findResult = findPs.executeQuery();
-            // Query조회 실패시 return
-            if (!findResult.next()) {
-                return false;
-            }
-            final var currentTodo = convertResultSetTodo(findResult);
-
-
-            deletePS.setLong(1, dto.getId());
-
-            return true;
+            return deletePS.execute();
         }catch (SQLException e) {
             e.printStackTrace();
             return false;
         }
     }
 
-    public void removeAll() {
-        String sql = "DELETE FROM todos";
+    public boolean removeAll() {
+        String sql = tableType.deleteAllTodosSQL();
         try (
                 Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
                 PreparedStatement pstmt = conn.prepareStatement(sql);
         ){
-            //Method is only allowed for a query. Use execute or executeUpdate instead of executeQuery; SQL statement:
-            pstmt.execute();
+            return pstmt.execute();
         }catch (SQLException e) {
             e.printStackTrace();
+            return false
         }
     }
 
