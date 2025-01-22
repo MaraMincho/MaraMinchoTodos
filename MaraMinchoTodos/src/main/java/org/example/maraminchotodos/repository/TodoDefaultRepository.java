@@ -2,11 +2,14 @@ package org.example.maraminchotodos.repository;
 
 import org.example.maraminchotodos.domain.Todo;
 import org.example.maraminchotodos.dto.CreateTodoRequest;
+import org.example.maraminchotodos.dto.RemoveTodoRequest;
+import org.example.maraminchotodos.dto.UpdateTodoRequest;
 import org.springframework.stereotype.Controller;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Controller
 public class TodoDefaultRepository {
@@ -46,6 +49,82 @@ public class TodoDefaultRepository {
             e.printStackTrace();
         }
         return todos;
+    }
+
+    public boolean updateTodo(UpdateTodoRequest dto) {
+        var title = dto.getTitle();
+        var content = dto.getContent();
+        var id = dto.getId();
+        String sql = """
+                    UPDATE todos 
+                    SET(title, content) = (?, ?)
+                    WHERE id == (?)
+                    """;
+
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, title);
+            pstmt.setString(2, content);
+            pstmt.setLong(3, id);
+
+            //TODO: - 에러 처리 로직 새성
+            pstmt.execute();
+            return true;
+        }catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public Optional<Todo> getTodo(Long id) {
+        String sql = """
+                SELECT * FROM todos WHERE id = ?
+                """;
+
+        try(
+                Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+                PreparedStatement pstmt = conn.prepareStatement(sql);
+        ) {
+            var result = pstmt.executeQuery();
+            if (!result.next()) {
+                return Optional.empty();
+            }
+            return Optional.of(convertResultSetTodo(result));
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return Optional.empty();
+        }
+    }
+
+    public boolean removeTodo(RemoveTodoRequest dto) {
+        String sql = """
+                DELTE FROM todos
+                where id = ?
+                """;
+        String findTargetTodoSQL = "SELECT * FROM todos WHERE id = ?";
+        String insertSQL = "INSERT INTO removed_todos(userId, title, content) VALUES(?, ?, ?)";
+        try(
+                Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+                PreparedStatement findPs = conn.prepareStatement(findTargetTodoSQL);
+                PreparedStatement deletePS = conn.prepareStatement(sql);
+                PreparedStatement insertPS = conn.prepareStatement(insertSQL);
+
+        ) {
+            var findResult = findPs.executeQuery();
+            // Query조회 실패시 return
+            if (!findResult.next()) {
+                return false;
+            }
+            final var currentTodo = convertResultSetTodo(findResult);
+
+
+            deletePS.setLong(1, dto.getId());
+
+            return true;
+        }catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     public void removeAll() {

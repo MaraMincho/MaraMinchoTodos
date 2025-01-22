@@ -1,18 +1,11 @@
 package org.example.maraminchotodos.cnotroller;
 
 import lombok.RequiredArgsConstructor;
-import org.example.maraminchotodos.dto.CreateTodoRequest;
-import org.example.maraminchotodos.dto.CreateTodoResponse;
-import org.example.maraminchotodos.dto.GetTodoResponse;
-import org.example.maraminchotodos.service.TodoService;
+import org.example.maraminchotodos.dto.*;
 import org.example.maraminchotodos.service.normal.NormalService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
 @RestController
@@ -31,5 +24,13 @@ public class TodoController {
         normalService.createTodo(request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new CreateTodoResponse("OK"));
+    }
+
+    //MARK: - PUT과 Patch의 다른점은 PUT은 전체를 바꾸는 것이고 PATCH는 일부를 바꾸는 것 입니다.
+    @PatchMapping("/Todos")
+    public ResponseEntity<UpdateTodoResponse> updateTodo(@RequestBody UpdateTodoRequest request) {
+        normalService.update(request);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new UpdateTodoResponse("OK"));
     }
 }

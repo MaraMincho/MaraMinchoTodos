@@ -3,6 +3,7 @@ package org.example.maraminchotodos.service.normal;
 import lombok.RequiredArgsConstructor;
 import org.example.maraminchotodos.dto.CreateTodoRequest;
 import org.example.maraminchotodos.dto.GetTodoResponse;
+import org.example.maraminchotodos.dto.UpdateTodoResponse;
 import org.example.maraminchotodos.repository.TodoDefaultRepository;
 import org.example.maraminchotodos.service.TodoService;
 import org.springframework.stereotype.Service;
@@ -21,5 +22,11 @@ public class NormalService implements TodoService {
     public GetTodoResponse getTodos() {
         return new GetTodoResponse(repository.getTodoById(1));
     }
+
+    @Override
+    public void updateTodo(UpdateTodoResponse request) {
+        repository.
+    }
+
 
 }
