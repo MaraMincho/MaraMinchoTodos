@@ -1,14 +1,9 @@
 package org.example.maraminchotodos.repository;
 
-import lombok.Builder;
 import org.example.maraminchotodos.domain.Todo;
 import org.example.maraminchotodos.dto.CreateTodoRequest;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.ApplicationArguments;
-import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Controller;
 
-import javax.sql.DataSource;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,9 +50,10 @@ public class TodoDefaultRepository {
 
     public void removeAll() {
         String sql = "DELETE FROM todos";
-        try {
-            Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
-            PreparedStatement pstmt = conn.prepareStatement(sql);
+        try (
+                Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+                PreparedStatement pstmt = conn.prepareStatement(sql);
+        ){
             //Method is only allowed for a query. Use execute or executeUpdate instead of executeQuery; SQL statement:
             pstmt.execute();
         }catch (SQLException e) {
@@ -73,6 +69,4 @@ public class TodoDefaultRepository {
                 rs.getString("content")
         );
     }
-
-
 }
