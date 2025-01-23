@@ -1,10 +1,5 @@
 package org.example.maraminchotodos.dto;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+public record GetTodoByUserIdRequest(Long userId) {
 
-@RequiredArgsConstructor
-@Getter
-public class GetTodoByUserIdRequest {
-    private Long userId;
 }

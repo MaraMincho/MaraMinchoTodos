@@ -28,7 +28,7 @@ public class TodoDefaultRepository {
     }
     // CREATE
     public boolean addTodo(CreateTodoRequest dto) {
-        String sql = tableType.insertTodoSQL(dto.getUserId(), dto.getTitle(), dto.getContent());
+        String sql = tableType.insertTodoSQL(dto.userId(), dto.title(), dto.content());
         try (PreparedStatement pstmt = createPreparedStatement(sql);) {
             return pstmt.execute();
         } catch (SQLException e) {
@@ -74,7 +74,7 @@ public class TodoDefaultRepository {
     }
 
     public boolean removeTodo(RemoveTodoRequest dto) {
-        String sql = tableType.deleteTodoSQL(dto.getId());
+        String sql = tableType.deleteTodoSQL(dto.id());
         try (PreparedStatement pstmt = createPreparedStatement(sql);) {
             return pstmt.execute();
         }catch (SQLException e) {

@@ -46,7 +46,7 @@ public class ArchiveTodoRepository {
     }
 
     public List<Todo> getTodoByOriginalId(GetTodoByIdRequest request) {
-        String sql = "SELECT * FROM" + tableType.getTableName() + "WHERE originalId" + request.getId().toString();
+        String sql = "SELECT * FROM" + tableType.getTableName() + "WHERE originalId" + request.id().toString();
         List<Todo> todos = new ArrayList<>();
 
         try(PreparedStatement pstmt = createPreparedStatement(sql)) {

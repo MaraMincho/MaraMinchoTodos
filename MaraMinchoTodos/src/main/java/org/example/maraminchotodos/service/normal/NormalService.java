@@ -39,7 +39,7 @@ public class NormalService implements TodoService {
 
     @Override
     public Boolean removeTodo(RemoveTodoRequest request) {
-        var todo = defaultRepository.getTodo(request.getId());
+        var todo = defaultRepository.getTodo(request.id());
         if (todo.isEmpty()) {
             return false;
         }
