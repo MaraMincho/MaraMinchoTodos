@@ -20,12 +20,12 @@ public class NormalService implements TodoService {
 
     @Override
     public GetTodoResponse getTodos() {
-        return new GetTodoResponse(repository.getTodoById(1));
+        return new GetTodoResponse(repository.getTodoByUserId(1L));
     }
 
     @Override
     public void updateTodo(UpdateTodoResponse request) {
-        repository.
+
     }
 
 

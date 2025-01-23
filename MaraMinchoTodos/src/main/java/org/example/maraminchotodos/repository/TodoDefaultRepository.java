@@ -20,14 +20,15 @@ public class TodoDefaultRepository {
     private static final String DB_PASSWORD = "sa";
 
     private TodoTableType tableType = TodoTableType.NORMAL;
+
+    private PreparedStatement createPreparedStatement(String sql) throws SQLException{
+        final Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+        return conn.prepareStatement(sql);
+    }
     // CREATE
     public boolean addTodo(CreateTodoRequest dto) {
         String sql = tableType.insertTodoSQL(dto.getUserId(), dto.getTitle(), dto.getContent());
-
-        try (
-                Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
-                PreparedStatement pstmt = conn.prepareStatement(sql);
-        ) {
+        try (PreparedStatement pstmt = createPreparedStatement(sql);) {
             return pstmt.execute();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -35,13 +36,10 @@ public class TodoDefaultRepository {
         }
     }
     // READ
-    public List<Todo> getTodoById(Long userId) {
+    public List<Todo> getTodoByUserId(Long userId) {
         String sql = tableType.getTodoByUserIdSQL(userId);
         List<Todo> todos = new ArrayList<>();
-        try (
-            Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
-             PreparedStatement pstmt = conn.prepareStatement(sql)
-        ) {
+        try (PreparedStatement pstmt = createPreparedStatement(sql)) {
             ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
                 todos.add(convertResultSetTodo(rs));
@@ -54,10 +52,7 @@ public class TodoDefaultRepository {
 
     public boolean updateTodo(UpdateTodoRequest dto) {
         String sql = tableType.updateTodoSQL(dto.getId(), dto.getTitle(), dto.getContent());
-        try (
-                Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
-                PreparedStatement pstmt = conn.prepareStatement(sql)
-        ) {
+        try (PreparedStatement pstmt = createPreparedStatement(sql);) {
             return pstmt.execute();
         }catch (SQLException e) {
             e.printStackTrace();
@@ -67,10 +62,7 @@ public class TodoDefaultRepository {
 
     public Optional<Todo> getTodo(Long id) {
         String sql = tableType.getTodoByIdSQL(id);
-        try(
-                Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
-                PreparedStatement pstmt = conn.prepareStatement(sql);
-        ) {
+        try (PreparedStatement pstmt = createPreparedStatement(sql);) {
             var result = pstmt.executeQuery();
             if (!result.next()) {
                 return Optional.empty();
@@ -84,11 +76,8 @@ public class TodoDefaultRepository {
 
     public boolean removeTodo(RemoveTodoRequest dto) {
         String sql = tableType.deleteTodoSQL(dto.getId());
-        try(
-                Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
-                PreparedStatement deletePS = conn.prepareStatement(sql);
-        ) {
-            return deletePS.execute();
+        try (PreparedStatement pstmt = createPreparedStatement(sql);) {
+            return pstmt.execute();
         }catch (SQLException e) {
             e.printStackTrace();
             return false;
@@ -97,14 +86,11 @@ public class TodoDefaultRepository {
 
     public boolean removeAll() {
         String sql = tableType.deleteAllTodosSQL();
-        try (
-                Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
-                PreparedStatement pstmt = conn.prepareStatement(sql);
-        ){
+        try (PreparedStatement pstmt = createPreparedStatement(sql);) {
             return pstmt.execute();
         }catch (SQLException e) {
             e.printStackTrace();
-            return false
+            return false;
         }
     }
 
