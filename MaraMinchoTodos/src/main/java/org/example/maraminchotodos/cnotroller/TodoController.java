@@ -29,7 +29,7 @@ public class TodoController {
     //MARK: - PUT과 Patch의 다른점은 PUT은 전체를 바꾸는 것이고 PATCH는 일부를 바꾸는 것 입니다.
     @PatchMapping("/Todos")
     public ResponseEntity<UpdateTodoResponse> updateTodo(@RequestBody UpdateTodoRequest request) {
-        normalService.update(request);
+        normalService.updateTodo(request);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new UpdateTodoResponse("OK"));
     }
