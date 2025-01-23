@@ -2,6 +2,7 @@ package org.example.maraminchotodos.repository;
 
 import org.example.maraminchotodos.domain.Todo;
 import org.example.maraminchotodos.domain.util.TodoAndResultSetUtility;
+import org.example.maraminchotodos.dto.GetTodoByIdRequest;
 import org.example.maraminchotodos.repository.sql.TodoTableType;
 import org.springframework.stereotype.Repository;
 
@@ -44,8 +45,8 @@ public class ArchiveTodoRepository {
         return todos;
     }
 
-    public List<Todo> getTodoByOriginalId(Long id) {
-        String sql = "SELECT * FROM" + tableType.getTableName() + "WHERE originalId" + id.toString();
+    public List<Todo> getTodoByOriginalId(GetTodoByIdRequest request) {
+        String sql = "SELECT * FROM" + tableType.getTableName() + "WHERE originalId" + request.getId().toString();
         List<Todo> todos = new ArrayList<>();
 
         try(PreparedStatement pstmt = createPreparedStatement(sql)) {

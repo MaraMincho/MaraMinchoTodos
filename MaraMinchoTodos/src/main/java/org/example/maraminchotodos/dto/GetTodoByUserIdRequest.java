@@ -5,6 +5,6 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Getter
-public class GetTodoByIdRequest {
-    private final Long id;
+public class GetTodoByUserIdRequest {
+    private Long userId;
 }
