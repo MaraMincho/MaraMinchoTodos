@@ -33,7 +33,24 @@ public enum TodoTableType {
                 "INSERT INTO",
                 getTableName(),
                 "(user_id, is_show, title, content)",
-                "values",
+                "VALUES",
+                "(" + valueString + ")"
+        };
+        return joinSQL(sqlTarget);
+    }
+
+    public String archiveInsertTodoSQL(Long userId, String title, String content) {
+        String [] target = {
+                userId.toString(),
+                makeStringField(title),
+                makeStringField(content),
+        };
+        String valueString = String.join(",", target);
+        String [] sqlTarget = {
+                "INSERT INTO",
+                getTableName(),
+                "(user_id, is_show, title, content)",
+                "VALUES",
                 "(" + valueString + ")"
         };
         return joinSQL(sqlTarget);

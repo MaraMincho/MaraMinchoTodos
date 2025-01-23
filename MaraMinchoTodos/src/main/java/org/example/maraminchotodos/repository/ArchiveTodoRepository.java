@@ -30,7 +30,7 @@ public class ArchiveTodoRepository {
     }
 
     public boolean addTodo(Todo todo) {
-        String sql = tableType.insertTodoSQL(todo.getUserId(), todo.getTitle(), todo.getContent());
+        String sql = tableType.archiveInsertTodoSQL(todo.getUserId(), todo.getTitle(), todo.getContent());
         try (final PreparedStatement pstmt = createPreparedStatement(sql)) {
             return pstmt.execute();
         }catch (SQLException e) {
