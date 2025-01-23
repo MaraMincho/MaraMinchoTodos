@@ -29,8 +29,9 @@ public class TodoDefaultRepository {
     }
 
     private <T> T createPreparedStatement(String sql, PreparedStatementExecutor<T> executor) throws SQLException {
-        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
-             PreparedStatement prstmt = conn.prepareStatement(sql);
+        try (
+                Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+                PreparedStatement prstmt = conn.prepareStatement(sql);
         ) {
             return executor.execute(prstmt);
         }

@@ -93,5 +93,4 @@ class TodoControllerTest {
         List<Todo> todos = repository.getTodoByUserId(1L);
         assertThat(todos).hasSize(1);
     }
-
 }
