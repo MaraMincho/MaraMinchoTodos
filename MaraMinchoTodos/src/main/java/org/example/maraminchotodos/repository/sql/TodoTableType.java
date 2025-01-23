@@ -4,7 +4,7 @@ public enum TodoTableType {
     ARCHIVED,
     NORMAL;
 
-    private String getTableName() {
+    public String getTableName() {
         return switch (this) {
             case ARCHIVED:
                 yield "removed_todos";

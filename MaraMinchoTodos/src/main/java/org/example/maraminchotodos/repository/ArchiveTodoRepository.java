@@ -1,13 +1,13 @@
 package org.example.maraminchotodos.repository;
 
 import org.example.maraminchotodos.domain.Todo;
+import org.example.maraminchotodos.domain.util.TodoAndResultSetUtility;
 import org.example.maraminchotodos.repository.sql.TodoTableType;
 import org.springframework.stereotype.Repository;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Repository
 public class ArchiveTodoRepository {
@@ -23,6 +23,37 @@ public class ArchiveTodoRepository {
     }
 
     public boolean addTodo(Todo todo) {
-        String sql =
+        String sql = tableType.insertTodoSQL(todo.getUserId(), todo.getTitle(), todo.getContent());
+        try (final PreparedStatement pstmt = createPreparedStatement(sql)) {
+            return pstmt.execute();
+        }catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    public List<Todo> getTodoByUserId(Long userId) {
+        String sql = tableType.getTodoByUserIdSQL(userId);
+        List<Todo> todos = new ArrayList<>();
+
+        try( PreparedStatement pstmt = createPreparedStatement(sql)) {
+            ResultSet rs = pstmt.executeQuery();
+            todos = TodoAndResultSetUtility.convertResultSeTodoList(rs);
+        }catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return todos;
+    }
+
+    public List<Todo> getTodoByOriginalId(Long id) {
+        String sql = "SELECT * FROM" + tableType.getTableName() + "WHERE originalId" + id.toString();
+        List<Todo> todos = new ArrayList<>();
+
+        try(PreparedStatement pstmt = createPreparedStatement(sql)) {
+            ResultSet rs = pstmt.executeQuery();
+            todos = TodoAndResultSetUtility.convertResultSeTodoList(rs);
+        }catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return todos;
     }
 }

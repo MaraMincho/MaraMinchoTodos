@@ -1,6 +1,7 @@
 package org.example.maraminchotodos.repository;
 
 import org.example.maraminchotodos.domain.Todo;
+import org.example.maraminchotodos.domain.util.TodoAndResultSetUtility;
 import org.example.maraminchotodos.dto.CreateTodoRequest;
 import org.example.maraminchotodos.dto.RemoveTodoRequest;
 import org.example.maraminchotodos.dto.UpdateTodoRequest;
@@ -41,9 +42,7 @@ public class TodoDefaultRepository {
         List<Todo> todos = new ArrayList<>();
         try (PreparedStatement pstmt = createPreparedStatement(sql)) {
             ResultSet rs = pstmt.executeQuery();
-            while (rs.next()) {
-                todos.add(convertResultSetTodo(rs));
-            }
+            todos = TodoAndResultSetUtility.convertResultSeTodoList(rs);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -67,7 +66,7 @@ public class TodoDefaultRepository {
             if (!result.next()) {
                 return Optional.empty();
             }
-            return Optional.of(convertResultSetTodo(result));
+            return Optional.of(TodoAndResultSetUtility.convertResultSetTodo(result));
         } catch (SQLException e) {
             e.printStackTrace();
             return Optional.empty();
@@ -92,14 +91,5 @@ public class TodoDefaultRepository {
             e.printStackTrace();
             return false;
         }
-    }
-
-    private Todo convertResultSetTodo(ResultSet rs) throws SQLException {
-        return new Todo(
-                rs.getLong("id"),      // Ensure column names match table definition
-                rs.getLong("userId"),
-                rs.getString("title"),
-                rs.getString("content")
-        );
     }
 }
