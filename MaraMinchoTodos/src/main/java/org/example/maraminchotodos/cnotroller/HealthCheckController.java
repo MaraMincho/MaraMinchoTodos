@@ -1,6 +1,7 @@
 package org.example.maraminchotodos.cnotroller;
 
 import lombok.RequiredArgsConstructor;
+import org.example.maraminchotodos.repository.MemoryExceedExample;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,5 +16,9 @@ public class HealthCheckController {
         return ResponseEntity
                 .ok()
                 .body(message);
+    }
+    @GetMapping("/Tests")
+    public void test() {
+        MemoryExceedExample.main(new String[]{});
     }
 }

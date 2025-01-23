@@ -22,37 +22,53 @@ public class TodoDefaultRepository {
 
     private TodoTableType tableType = TodoTableType.NORMAL;
 
-    private PreparedStatement createPreparedStatement(String sql) throws SQLException{
-        final Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
-        return conn.prepareStatement(sql);
+    // Custom functional interface to remove try-catch from executor
+    @FunctionalInterface
+    interface PreparedStatementExecutor<T> {
+        T execute(PreparedStatement prstmt) throws SQLException;
     }
+
+    private <T> T createPreparedStatement(String sql, PreparedStatementExecutor<T> executor) throws SQLException {
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+             PreparedStatement prstmt = conn.prepareStatement(sql);
+        ) {
+            return executor.execute(prstmt);
+        }
+    }
+
     // CREATE
     public boolean addTodo(CreateTodoRequest dto) {
         String sql = tableType.insertTodoSQL(dto.userId(), dto.title(), dto.content());
-        try (PreparedStatement pstmt = createPreparedStatement(sql);) {
-            return pstmt.execute();
+
+        try {
+            // Directly propagate SQLException
+            return createPreparedStatement(sql, PreparedStatement::execute);
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
         }
     }
+
     // READ
     public List<Todo> getTodoByUserId(Long userId) {
         String sql = tableType.getTodoByUserIdSQL(userId);
-        List<Todo> todos = new ArrayList<>();
-        try (PreparedStatement pstmt = createPreparedStatement(sql)) {
-            ResultSet rs = pstmt.executeQuery();
-            todos = TodoAndResultSetUtility.convertResultSeTodoList(rs);
+        try  {
+            return createPreparedStatement(sql, prstmt -> {
+                ResultSet rs = prstmt.executeQuery();
+                return TodoAndResultSetUtility.convertResultSeTodoList(rs);
+            });
+
         } catch (SQLException e) {
+            // Send new Array List;
             e.printStackTrace();
+            return new ArrayList<>();
         }
-        return todos;
     }
 
     public boolean updateTodo(UpdateTodoRequest dto) {
         String sql = tableType.updateTodoSQL(dto.id(), dto.title(), dto.content());
-        try (PreparedStatement pstmt = createPreparedStatement(sql);) {
-            return pstmt.execute();
+        try {
+            return createPreparedStatement(sql, PreparedStatement::execute);
         }catch (SQLException e) {
             e.printStackTrace();
             return false;
@@ -61,12 +77,14 @@ public class TodoDefaultRepository {
 
     public Optional<Todo> getTodo(Long id) {
         String sql = tableType.getTodoByIdSQL(id);
-        try (PreparedStatement pstmt = createPreparedStatement(sql);) {
-            var result = pstmt.executeQuery();
-            if (!result.next()) {
-                return Optional.empty();
-            }
-            return Optional.of(TodoAndResultSetUtility.convertResultSetTodo(result));
+        try {
+            return createPreparedStatement(sql, prstmt -> {
+                var result = prstmt.executeQuery();
+                if (!result.next()) {
+                    return Optional.empty();
+                }
+                return Optional.of(TodoAndResultSetUtility.convertResultSetTodo(result));
+            });
         } catch (SQLException e) {
             e.printStackTrace();
             return Optional.empty();
@@ -75,8 +93,8 @@ public class TodoDefaultRepository {
 
     public boolean removeTodo(RemoveTodoRequest dto) {
         String sql = tableType.deleteTodoSQL(dto.id());
-        try (PreparedStatement pstmt = createPreparedStatement(sql);) {
-            return pstmt.execute();
+        try  {
+            return createPreparedStatement(sql, PreparedStatement::execute);
         }catch (SQLException e) {
             e.printStackTrace();
             return false;
@@ -85,8 +103,8 @@ public class TodoDefaultRepository {
 
     public boolean removeAll() {
         String sql = tableType.deleteAllTodosSQL();
-        try (PreparedStatement pstmt = createPreparedStatement(sql);) {
-            return pstmt.execute();
+        try  {
+            return createPreparedStatement(sql, PreparedStatement::execute);
         }catch (SQLException e) {
             e.printStackTrace();
             return false;

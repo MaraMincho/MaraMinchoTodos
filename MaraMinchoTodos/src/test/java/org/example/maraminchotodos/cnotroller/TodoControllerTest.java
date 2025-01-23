@@ -71,4 +71,27 @@ class TodoControllerTest {
         assertThat(todos.get(0).getTitle()).isEqualTo(title);
     }
 
+    @DisplayName("DelteTODO: TODO제거에 성공한다. ")
+    @Test
+    void deleteTodo() throws Exception {
+        final String url = "/Todos";
+        final Long userId = 1L;
+        final String title = "MyTitle";
+        final String content = "MyContent";
+        final CreateTodoRequest request = new CreateTodoRequest(userId, title, content);
+
+        final String requestBody = objectMapper.writeValueAsString(request);
+        System.out.println(request);
+
+        repository.removeAll();
+        ResultActions result = mockMvc.perform(post(url)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content(requestBody));
+
+        result.andExpect(status().isCreated());
+
+        List<Todo> todos = repository.getTodoByUserId(1L);
+        assertThat(todos).hasSize(1);
+    }
+
 }
