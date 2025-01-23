@@ -16,11 +16,17 @@ public class ArchiveTodoRepository {
     private static final String DB_USER = "sa";
     private static final String DB_PASSWORD = "sa";
 
-    private final TodoTableType tableType = TodoTableType.ARCHIVED;
+    private static final TodoTableType tableType = TodoTableType.ARCHIVED;
 
-    private PreparedStatement createPreparedStatement(String sql) throws SQLException{
-        final Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
-        return conn.prepareStatement(sql);
+    private PreparedStatement createPreparedStatement(String sql) throws SQLException {
+        try (
+                final Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+                PreparedStatement pstmt = conn.prepareStatement(sql);
+        ) {
+            return pstmt;
+        } catch (SQLException e) {
+            throw e;
+        }
     }
 
     public boolean addTodo(Todo todo) {

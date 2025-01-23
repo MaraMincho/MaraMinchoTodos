@@ -8,20 +8,20 @@ CREATE TABLE users
 CREATE TABLE todos
 (
     id      INT AUTO_INCREMENT PRIMARY KEY,
-    isShow BOOLEAN,
-    userId INT NOT NULL,
+    is_show BOOLEAN,
+    user_id INT NOT NULL,
     title   VARCHAR(256) NOT NULL,
     content VARCHAR(256) NOT NULL,
-    FOREIGN KEY (userId) REFERENCES users(id)
+    FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
 CREATE TABLE archived_todos
 (
     id      INT AUTO_INCREMENT PRIMARY KEY,
-    originalId Int,
-    userId  INT          NOT NULL,
+    original_id INT,
+    user_id  INT          NOT NULL,
     title   VARCHAR(256) NOT NULL,
     content VARCHAR(256) NOT NULL,
-    FOREIGN KEY (userId) REFERENCES users (id),
-    FOREIGN KEY (originalId) REFERENCES todos (id);
+    FOREIGN KEY (user_id) REFERENCES users (id),
+    FOREIGN KEY (original_id) REFERENCES todos (id)
 )

@@ -11,7 +11,7 @@ public class TodoAndResultSetUtility {
     public static Todo convertResultSetTodo(ResultSet rs) throws SQLException {
         return new Todo(
                 rs.getLong("id"),
-                rs.getLong("userID"),
+                rs.getLong("user_id"),
                 rs.getString("title"),
                 rs.getString("content")
         );

@@ -13,40 +13,90 @@ public enum TodoTableType {
         };
     }
 
+    private String joinSQL(String[] target) {
+        return String.join(" ", target);
+    }
+
+    private String makeStringField(String target) {
+        return "'" + target + "'";
+    }
+
     public String insertTodoSQL(Long userId, String title, String content) {
-        String[] target = {userId.toString(), title, content};
+        String[] target = {
+                userId.toString(),
+                "true",
+                makeStringField(title),
+                makeStringField(content)
+        };
         String valueString = String.join(",", target);
-        return "INSERT INTO" +
-                getTableName() +
-                "(userId, title, content)" +
-                "values" +
-                "(" + valueString + ")";
+        String[] sqlTarget = {
+                "INSERT INTO",
+                getTableName(),
+                "(user_id, is_show, title, content)",
+                "values",
+                "(" + valueString + ")"
+        };
+        return joinSQL(sqlTarget);
     }
 
     public String deleteTodoSQL(Long id) {
-        return "DELETE FROM" + getTableName() + "WHERE id" + id.toString();
+        String[] sqlTarget = {
+                "DELETE FROM",
+                getTableName(),
+                "WHERE id",
+                id.toString()
+        };
+        return joinSQL(sqlTarget);
     }
 
     public String deleteAllTodosSQL() {
-        return "DELETE FROM" + getTableName();
+        String[] sqlTarget = {
+                "DELETE FROM",
+                getTableName()
+        };
+        return joinSQL(sqlTarget);
     }
 
     public String getAllTodosSQL() {
-        return "SELECT * FROM" + getTableName();
+        String[] sqlTarget = {
+                "SELECT *",
+                "FROM",
+                getTableName()
+        };
+        return joinSQL(sqlTarget);
     }
 
     public String getTodoByIdSQL(Long id) {
-        return "SELECT * FROM" + getTableName() + "WHERE id=" + id.toString();
+        String [] sqlTarget = {
+                "SELECT *",
+                "FROM",
+                getTableName(),
+                "WHERE id=",
+                id.toString()
+        };
+        return joinSQL(sqlTarget);
     }
+
     public String getTodoByUserIdSQL(Long id) {
-        return "SELECT * FROM" + getTableName() + "WHERE userId=" + id.toString();
+        String[] sqlTarget = {
+                "SELECT * FROM",
+                getTableName(),
+                "WHERE user_id=",
+                id.toString()
+        };
+        return joinSQL(sqlTarget);
     }
+
     public String updateTodoSQL(Long id, String title, String content) {
         var setString =  "(" + String.join(",", title, content) + ")";
-        return "UPDATE" + getTableName() +
-                "SET(title, content) =" +
-                setString +
-                "WHERE id == " +
-                id;
+        String[] sqlTarget = {
+                "UPDATE",
+                getTableName(),
+                "SET(title, content) =",
+                setString,
+                "WHERE id == ",
+                id.toString()
+        };
+        return joinSQL(sqlTarget);
     }
 }

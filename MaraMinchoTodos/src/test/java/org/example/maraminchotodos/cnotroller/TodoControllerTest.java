@@ -64,12 +64,11 @@ class TodoControllerTest {
 
         result.andExpect(status().isCreated());
 
-        List<Todo> todos = repository.getTodoById(1);
+        List<Todo> todos = repository.getTodoByUserId(1L);
         assertThat(todos).hasSize(1);
         assertThat(todos.get(0).getUserId()).isEqualTo(userId);
         assertThat(todos.get(0).getContent()).isEqualTo(content);
         assertThat(todos.get(0).getTitle()).isEqualTo(title);
     }
-
 
 }

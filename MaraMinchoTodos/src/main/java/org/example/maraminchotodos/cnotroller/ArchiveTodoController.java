@@ -19,6 +19,6 @@ public class ArchiveTodoController {
     }
 
     public List<Todo> getTodoByUserId(GetTodoByUserIdRequest request) {
-        return archiveTodoRepository.getTodoByUserId(request.getUserId());
+        return archiveTodoRepository.getTodoByUserId(request.userId());
     }
 }
