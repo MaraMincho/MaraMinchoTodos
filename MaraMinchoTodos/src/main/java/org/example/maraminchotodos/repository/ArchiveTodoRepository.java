@@ -18,21 +18,24 @@ public class ArchiveTodoRepository {
 
     private static final TodoTableType tableType = TodoTableType.ARCHIVED;
 
-    private PreparedStatement createPreparedStatement(String sql) throws SQLException {
+    @FunctionalInterface
+    private interface PreparedStatementExecutor<T> {
+        T execute(PreparedStatement pstmt) throws SQLException;
+    }
+
+    private <T> T createPreparedStatement(String sql, PreparedStatementExecutor<T> executor) throws SQLException {
         try (
                 final Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
                 PreparedStatement pstmt = conn.prepareStatement(sql);
         ) {
-            return pstmt;
-        } catch (SQLException e) {
-            throw e;
+            return executor.execute(pstmt);
         }
     }
 
     public boolean addTodo(Todo todo) {
-        String sql = tableType.archiveInsertTodoSQL(todo.getUserId(), todo.getTitle(), todo.getContent());
-        try (final PreparedStatement pstmt = createPreparedStatement(sql)) {
-            return pstmt.execute();
+        String sql = tableType.archiveInsertTodoSQL(todo.getId(), todo.getUserId(), todo.getTitle(), todo.getContent());
+        try {
+            return createPreparedStatement(sql, PreparedStatement::execute);
         }catch (SQLException e) {
             e.printStackTrace();
             return false;
@@ -40,27 +43,42 @@ public class ArchiveTodoRepository {
     }
     public List<Todo> getTodoByUserId(Long userId) {
         String sql = tableType.getTodoByUserIdSQL(userId);
-        List<Todo> todos = new ArrayList<>();
 
-        try( PreparedStatement pstmt = createPreparedStatement(sql)) {
-            ResultSet rs = pstmt.executeQuery();
-            todos = TodoAndResultSetUtility.convertResultSeTodoList(rs);
+        try {
+            return createPreparedStatement(sql, pstmt -> {
+                ResultSet rs = pstmt.executeQuery();
+                return TodoAndResultSetUtility.convertResultSeTodoList(rs);
+            });
         }catch (SQLException e) {
             e.printStackTrace();
+            return new ArrayList<>();
         }
-        return todos;
     }
 
     public List<Todo> getTodoByOriginalId(GetTodoByIdRequest request) {
-        String sql = "SELECT * FROM" + tableType.getTableName() + "WHERE originalId" + request.id().toString();
-        List<Todo> todos = new ArrayList<>();
+        String sql = "SELECT * FROM " + tableType.getTableName() + " WHERE original_Id = " + request.id().toString();
 
-        try(PreparedStatement pstmt = createPreparedStatement(sql)) {
-            ResultSet rs = pstmt.executeQuery();
-            todos = TodoAndResultSetUtility.convertResultSeTodoList(rs);
+        try {
+            return createPreparedStatement(sql, pstmt -> {
+                var rs = pstmt.executeQuery();
+                return TodoAndResultSetUtility.convertResultSeTodoList(rs);
+            });
         }catch (SQLException e) {
             e.printStackTrace();
+            return new ArrayList<>();
         }
-        return todos;
+    }
+
+    public List<Todo> getAllTodos() {
+        String sql = tableType.getAllTodosSQL();
+        try {
+            return createPreparedStatement(sql, pstmt -> {
+                var rs = pstmt.executeQuery();
+                return TodoAndResultSetUtility.convertResultSeTodoList(rs);
+            });
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
     }
 }

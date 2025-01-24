@@ -39,8 +39,9 @@ public enum TodoTableType {
         return joinSQL(sqlTarget);
     }
 
-    public String archiveInsertTodoSQL(Long userId, String title, String content) {
+    public String archiveInsertTodoSQL(Long originalId, Long userId, String title, String content) {
         String [] target = {
+                originalId.toString(),
                 userId.toString(),
                 makeStringField(title),
                 makeStringField(content),
@@ -49,9 +50,22 @@ public enum TodoTableType {
         String [] sqlTarget = {
                 "INSERT INTO",
                 getTableName(),
-                "(user_id, title, content)",
+                "(original_id, user_id, title, content)",
                 "VALUES",
                 "(" + valueString + ")"
+        };
+        return joinSQL(sqlTarget);
+    }
+
+    public String hideTodoSQL(Long id) {
+        String[] sqlTarget = {
+                "UPDATE",
+                getTableName(),
+                "SET",
+                "is_show = false",
+                "WHERE",
+                "id <>",
+                id.toString()
         };
         return joinSQL(sqlTarget);
     }
@@ -61,7 +75,8 @@ public enum TodoTableType {
                 "DELETE FROM",
                 getTableName(),
                 "WHERE id =",
-                id.toString()
+                id.toString(),
+                "AND is_show=false",
         };
         return joinSQL(sqlTarget);
     }
@@ -116,4 +131,6 @@ public enum TodoTableType {
         };
         return joinSQL(sqlTarget);
     }
+
+
 }

@@ -3,7 +3,9 @@ package org.example.maraminchotodos.cnotroller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.maraminchotodos.domain.Todo;
 import org.example.maraminchotodos.dto.CreateTodoRequest;
+import org.example.maraminchotodos.dto.GetTodoByIdRequest;
 import org.example.maraminchotodos.dto.RemoveTodoRequest;
+import org.example.maraminchotodos.repository.ArchiveTodoRepository;
 import org.example.maraminchotodos.repository.TodoDefaultRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -39,6 +41,8 @@ class TodoControllerTest {
 
     @Autowired
     TodoDefaultRepository repository;
+    @Autowired
+    ArchiveTodoRepository archiveTodoRepository;
 
     @BeforeEach
     public void mockMvcSetup() {
@@ -84,12 +88,13 @@ class TodoControllerTest {
         repository.removeAll();
         repository.addTodo(request);
 
+        // Assign Test and expect
         List<Todo> todos = repository.getTodoByUserId(1L);
         assertThat(todos).hasSize(1);
         assertThat(todos.get(0).getTitle()).isEqualTo(title);
-
         final Long removeTodoId = todos.get(0).getId();
 
+        // Remove Test
         final RemoveTodoRequest removeTodoRequest = new RemoveTodoRequest(removeTodoId);
         final String removeRequestBody = objectMapper.writeValueAsString(removeTodoRequest);
         ResultActions deleteResult = mockMvc.perform(delete(url)
@@ -99,6 +104,12 @@ class TodoControllerTest {
         deleteResult.andExpect(status().isOk());
 
         List<Todo> afterDeleteTodos = repository.getTodoByUserId(userId);
-        assertThat(afterDeleteTodos).hasSize(0);
+        assertThat(afterDeleteTodos).hasSize(1);
+
+        // Archive Test
+        var archivedTodos = archiveTodoRepository.getTodoByOriginalId(new GetTodoByIdRequest(removeTodoId));
+        assertThat(archivedTodos).hasSize(1);
+        assertThat(archivedTodos.get(0).getTitle()).isEqualTo(title);
+        assertThat(archivedTodos.get(0).getContent()).isEqualTo(content);
     }
 }

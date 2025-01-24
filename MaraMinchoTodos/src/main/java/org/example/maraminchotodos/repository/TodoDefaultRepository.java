@@ -103,6 +103,16 @@ public class TodoDefaultRepository {
         }
     }
 
+    public boolean hideTodo(RemoveTodoRequest dto) {
+        String sql = tableType.hideTodoSQL(dto.id());
+        try {
+            return createPreparedStatement(sql, PreparedStatement::execute);
+        }catch (SQLException e) {
+            e.printStackTrace();;
+            return false;
+        }
+    }
+
     public boolean removeAll() {
         String sql = tableType.deleteAllTodosSQL();
         try  {

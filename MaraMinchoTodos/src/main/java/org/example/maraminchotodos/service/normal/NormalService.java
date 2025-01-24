@@ -44,6 +44,6 @@ public class NormalService implements TodoService {
             return false;
         }
         archiveTodoRepository.addTodo(todo.get());
-        return defaultRepository.removeTodo(request);
+        return defaultRepository.hideTodo(request);
     }
 }
