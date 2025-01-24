@@ -7,7 +7,7 @@ public enum TodoTableType {
     public String getTableName() {
         return switch (this) {
             case ARCHIVED:
-                yield "removed_todos";
+                yield "archived_todos";
             case NORMAL:
                 yield "todos";
         };
@@ -49,7 +49,7 @@ public enum TodoTableType {
         String [] sqlTarget = {
                 "INSERT INTO",
                 getTableName(),
-                "(user_id, is_show, title, content)",
+                "(user_id, title, content)",
                 "VALUES",
                 "(" + valueString + ")"
         };
@@ -60,7 +60,7 @@ public enum TodoTableType {
         String[] sqlTarget = {
                 "DELETE FROM",
                 getTableName(),
-                "WHERE id",
+                "WHERE id =",
                 id.toString()
         };
         return joinSQL(sqlTarget);

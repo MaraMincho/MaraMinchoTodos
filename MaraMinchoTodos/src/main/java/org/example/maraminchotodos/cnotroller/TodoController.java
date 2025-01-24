@@ -33,4 +33,11 @@ public class TodoController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new UpdateTodoResponse("OK"));
     }
+
+    @DeleteMapping("/Todos")
+    public ResponseEntity<RemoveTodoResponse> removeTodo(@RequestBody RemoveTodoRequest dto) {
+        normalService.removeTodo(dto);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new RemoveTodoResponse("OK"));
+    }
 }
