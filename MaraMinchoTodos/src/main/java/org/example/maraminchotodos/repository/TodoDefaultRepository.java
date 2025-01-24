@@ -108,7 +108,7 @@ public class TodoDefaultRepository {
         try {
             return createPreparedStatement(sql, PreparedStatement::execute);
         }catch (SQLException e) {
-            e.printStackTrace();;
+            e.printStackTrace();
             return false;
         }
     }
