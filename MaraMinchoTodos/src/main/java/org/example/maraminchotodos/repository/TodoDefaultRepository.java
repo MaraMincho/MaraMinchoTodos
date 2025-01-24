@@ -23,6 +23,7 @@ public class TodoDefaultRepository {
     private TodoTableType tableType = TodoTableType.NORMAL;
 
     // Custom functional interface to remove try-catch from executor
+    // For
     @FunctionalInterface
     interface PreparedStatementExecutor<T> {
         T execute(PreparedStatement prstmt) throws SQLException;
