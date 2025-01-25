@@ -18,6 +18,9 @@ public enum TodoTableType {
     }
 
     private String makeStringField(String target) {
+        if (target == null) {
+            return " null ";
+        }
         return "'" + target + "'";
     }
 
@@ -124,8 +127,8 @@ public enum TodoTableType {
                 "UPDATE",
                 getTableName(),
                 "SET",
-                "title = NVL(title, ", makeStringField(title), "),",
-                "content = NVL(content, ", makeStringField(content), ") ",
+                "title = NVL(", makeStringField(title), ", title), ",
+                "content = NVL(", makeStringField(content), ", content)",
                 "WHERE id = ", id.toString(),
         };
         return joinSQL(sqlTarget);

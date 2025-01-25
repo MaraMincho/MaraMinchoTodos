@@ -129,7 +129,8 @@ class TodoControllerTest {
         final var todos = repository.getTodoByUserId(userId);
         assertThat(todos).hasSize(1);
         final var targetTodo = todos.get(0);
-
+        assertThat(targetTodo.getTitle()).isEqualTo(title);
+        assertThat(targetTodo.getContent()).isEqualTo(content);
 
         final UpdateTodoRequest updateTodoRequest = new UpdateTodoRequest(
                 targetTodo.getId(),
@@ -147,7 +148,7 @@ class TodoControllerTest {
         if (firstUpdateTodo.isEmpty()) {
             throw new RuntimeException("No data to access that");
         }
-        System.out.println(firstUpdateTodo.get().getId() + firstUpdateTodo.get().getTitle() + firstUpdateTodo.get().getContent());
+        System.out.println(firstUpdateTodo.get().getContent() + " " + firstUpdateTodo.get().getTitle());
         assertThat(firstUpdateTodo.get().getTitle()).isEqualTo(updateTitle);
         assertThat(firstUpdateTodo.get().getContent()).isEqualTo(content);
 
