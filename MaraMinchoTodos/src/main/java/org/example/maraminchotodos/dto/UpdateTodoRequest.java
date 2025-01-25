@@ -1,5 +1,7 @@
 package org.example.maraminchotodos.dto;
 
-public record UpdateTodoRequest(String title, String content, Long id) {
+import java.util.Optional;
+
+public record UpdateTodoRequest(Long id, Optional<String> title, Optional<String> content ) {
 
 }

@@ -68,7 +68,7 @@ public class TodoDefaultRepository {
     }
 
     public boolean updateTodo(UpdateTodoRequest dto) {
-        String sql = tableType.updateTodoSQL(dto.id(), dto.title(), dto.content());
+        String sql = tableType.updateTodoSQL(dto.id(), dto.title().orElse(null), dto.content().orElse(null));
         try {
             return createPreparedStatement(sql, PreparedStatement::execute);
         }catch (SQLException e) {

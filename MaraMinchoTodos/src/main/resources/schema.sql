@@ -22,6 +22,6 @@ CREATE TABLE archived_todos
     user_id  INT          NOT NULL,
     title   VARCHAR(256) NOT NULL,
     content VARCHAR(256) NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES users (id),
-    FOREIGN KEY (original_id) REFERENCES todos (id)
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+    FOREIGN KEY (original_id) REFERENCES todos (id) ON DELETE CASCADE
 )

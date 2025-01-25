@@ -120,14 +120,13 @@ public enum TodoTableType {
     }
 
     public String updateTodoSQL(Long id, String title, String content) {
-        var setString =  "(" + String.join(",", title, content) + ")";
         String[] sqlTarget = {
                 "UPDATE",
                 getTableName(),
-                "SET(title, content) =",
-                setString,
-                "WHERE id == ",
-                id.toString()
+                "SET",
+                "title = NVL(title, ", makeStringField(title), "),",
+                "content = NVL(content, ", makeStringField(content), ") ",
+                "WHERE id = ", id.toString(),
         };
         return joinSQL(sqlTarget);
     }
