@@ -148,7 +148,6 @@ class TodoControllerTest {
         if (firstUpdateTodo.isEmpty()) {
             throw new RuntimeException("No data to access that");
         }
-        System.out.println(firstUpdateTodo.get().getContent() + " " + firstUpdateTodo.get().getTitle());
         assertThat(firstUpdateTodo.get().getTitle()).isEqualTo(updateTitle);
         assertThat(firstUpdateTodo.get().getContent()).isEqualTo(content);
 
